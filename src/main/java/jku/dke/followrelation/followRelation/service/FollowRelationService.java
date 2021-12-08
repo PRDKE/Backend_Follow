@@ -14,7 +14,15 @@ public class FollowRelationService {
         this.followRelationRepository = followRelationRepository;
     }
 
-    public FollowRelationData addFollowRelationData(String username){
+    public FollowRelationData getFollowRelationDataByUsername(String username) {
+        return this.followRelationRepository.getFollowRelationDataByUsername(username);
+    }
+
+    public FollowRelationData addFollowRelationData(String username) throws Exception {
+        FollowRelationData newData = followRelationRepository.getFollowRelationDataByUsername(username);
+        if (newData != null) {
+            throw new Exception("User already exists!");
+        }
         return this.followRelationRepository.addFollowRelationData(username);
     }
 
@@ -28,5 +36,13 @@ public class FollowRelationService {
 
     public void addFollowRelation(String firstUser, String secondUser){
         this.followRelationRepository.addFollowRelation(firstUser, secondUser);
+    }
+
+    public void removeFollowRelation(String firstUser, String secondUser) {
+        this.followRelationRepository.removeFollowRelation(firstUser, secondUser);
+    }
+
+    public List<FollowRelationData> getAllFollowRelationData() {
+        return this.followRelationRepository.getAllFollowRelationData();
     }
 }

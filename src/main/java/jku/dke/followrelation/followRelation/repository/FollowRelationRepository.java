@@ -8,6 +8,13 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface FollowRelationRepository extends Neo4jRepository<FollowRelationData, Long> {
+
+    @Query("MATCH (a:FollowRelationData) RETURN a")
+    List<FollowRelationData> getAllFollowRelationData();
+
+    @Query("MATCH (a:FollowRelationData {username:$username}) RETURN a")
+    FollowRelationData getFollowRelationDataByUsername(@Param("username") String username);
+
     @Query("MATCH (a:FollowRelationData {username:$username})-[r:FOLLOWS]->(b:FollowRelationData) RETURN b")
     List<FollowRelationData> getAllIFollow(@Param("username") String username);
 
@@ -16,6 +23,9 @@ public interface FollowRelationRepository extends Neo4jRepository<FollowRelation
 
     @Query("MATCH (a:FollowRelationData {username:$firstUser}), (b:FollowRelationData {username:$secondUser}) MERGE (a)-[f:FOLLOWS]->(b)")
     void addFollowRelation(@Param("firstUser") String firstUser, @Param("secondUser") String secondUser);
+
+    @Query("MATCH (a:FollowRelationData {username:$firstUser})-[f:FOLLOWS]->(b:FollowRelationData {username:$secondUser}) DELETE f")
+    void removeFollowRelation(@Param("firstUser") String firstUser, @Param("secondUser") String secondUser);
 
     @Query("CREATE (n:FollowRelationData {username:$username})")
     FollowRelationData addFollowRelationData(@Param("username") String username);

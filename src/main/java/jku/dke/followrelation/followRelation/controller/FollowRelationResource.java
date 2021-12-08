@@ -17,6 +17,12 @@ public class FollowRelationResource {
         this.followRelationService = followRelationService;
     }
 
+    @GetMapping("all")
+    public ResponseEntity<List<FollowRelationData>> getAllFollowRelationData() {
+        List<FollowRelationData> allData = this.followRelationService.getAllFollowRelationData();
+        return new ResponseEntity<>(allData, HttpStatus.OK);
+    }
+
     @GetMapping("/{username}/follows")
     public ResponseEntity<List<FollowRelationData>> getAllUserFollows(@PathVariable("username") String username) {
         List<FollowRelationData> newList = followRelationService.getAllIFollow(username);
@@ -30,14 +36,43 @@ public class FollowRelationResource {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<FollowRelationData> addFollowRelationData(@RequestBody String username) {
+    public ResponseEntity<FollowRelationData> addFollowRelationData(@RequestBody String username) throws Exception {
         FollowRelationData newFollowRelationData = followRelationService.addFollowRelationData(username);
         return new ResponseEntity<>(newFollowRelationData, HttpStatus.CREATED);
     }
 
-    @PostMapping("/{firstUser}/follow/{secondUser}")
-    public ResponseEntity addFollowRelation(@PathVariable("firstUser") String firstUser, @PathVariable("secondUser") String secondUser) {
-        this.followRelationService.addFollowRelation(firstUser, secondUser);
+    @PostMapping("/followRelation")
+    public ResponseEntity addFollowRelation(@RequestBody CreateFollowRelation followRelation) {
+        this.followRelationService.addFollowRelation(followRelation.getFirstUser(), followRelation.getSecondUser());
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping("/deleteFollowRelation")
+    public ResponseEntity removeFollowRelation(@RequestBody CreateFollowRelation followRelation) {
+        this.followRelationService.removeFollowRelation(followRelation.getFirstUser(), followRelation.getSecondUser());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+}
+
+class CreateFollowRelation {
+    private String firstUser;
+    private String secondUser;
+
+    public CreateFollowRelation()  {}
+
+    public String getFirstUser() {
+        return firstUser;
+    }
+
+    public void setFirstUser(String firstUser) {
+        this.firstUser = firstUser;
+    }
+
+    public String getSecondUser() {
+        return secondUser;
+    }
+
+    public void setSecondUser(String secondUser) {
+        this.secondUser = secondUser;
     }
 }
