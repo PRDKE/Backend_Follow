@@ -17,7 +17,7 @@ public class FollowRelationResource {
         this.followRelationService = followRelationService;
     }
 
-    @GetMapping("all")
+    @GetMapping("/all")
     public ResponseEntity<List<FollowRelationData>> getAllFollowRelationData() {
         List<FollowRelationData> allData = this.followRelationService.getAllFollowRelationData();
         return new ResponseEntity<>(allData, HttpStatus.OK);
