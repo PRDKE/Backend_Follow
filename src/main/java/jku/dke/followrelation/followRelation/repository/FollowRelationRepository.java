@@ -29,4 +29,7 @@ public interface FollowRelationRepository extends Neo4jRepository<FollowRelation
 
     @Query("CREATE (n:FollowRelationData {username:$username})")
     FollowRelationData addFollowRelationData(@Param("username") String username);
+
+    @Query("MATCH (a:FollowRelationData {username:$firstUsername}) SET a.username = $secondUsername")
+    void updateUsername(@Param("firstUsername") String firstUsername, @Param("secondUsername") String secondUsername);
 }

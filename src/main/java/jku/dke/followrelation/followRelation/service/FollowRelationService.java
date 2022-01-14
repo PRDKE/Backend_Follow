@@ -45,4 +45,8 @@ public class FollowRelationService {
     public List<FollowRelationData> getAllFollowRelationData() {
         return this.followRelationRepository.getAllFollowRelationData();
     }
+
+    public void updateUsername(String currentUsername, String newUsername) {
+        this.followRelationRepository.updateUsername(currentUsername, newUsername);
+    }
 }

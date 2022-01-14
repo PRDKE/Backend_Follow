@@ -2,10 +2,12 @@ package jku.dke.followrelation.followRelation.controller;
 
 import jku.dke.followrelation.followRelation.model.FollowRelationData;
 import jku.dke.followrelation.followRelation.service.FollowRelationService;
+import jku.dke.followrelation.followRelation.utils.JwtUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -23,14 +25,26 @@ public class FollowRelationResource {
         return new ResponseEntity<>(allData, HttpStatus.OK);
     }
 
-    @GetMapping("/{username}/follows")
-    public ResponseEntity<List<FollowRelationData>> getAllUserFollows(@PathVariable("username") String username) {
+    @GetMapping("/follows")
+    public ResponseEntity<List<FollowRelationData>> getAllUserFollows(HttpServletRequest request) {
+        String jwtToken = request.getHeader("Authorization");
+        if(jwtToken == null || (!JwtUtils.isJwtTokenValid(jwtToken))) {
+            System.err.println("No authorization-header set or invalid jwtToken provided.");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        String username = JwtUtils.getUsernameFromJwtToken(jwtToken);
         List<FollowRelationData> newList = followRelationService.getAllIFollow(username);
         return new ResponseEntity<>(newList, HttpStatus.OK);
     }
 
-    @GetMapping("/follow/{username}")
-    public ResponseEntity<List<FollowRelationData>> getAllFollowUser(@PathVariable("username") String username) {
+    @GetMapping("/follow")
+    public ResponseEntity<List<FollowRelationData>> getAllFollowUser(HttpServletRequest request) {
+        String jwtToken = request.getHeader("Authorization");
+        if(jwtToken == null || (!JwtUtils.isJwtTokenValid(jwtToken))) {
+            System.err.println("No authorization-header set or invalid jwtToken provided.");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        String username = JwtUtils.getUsernameFromJwtToken(jwtToken);
         List<FollowRelationData> newList = followRelationService.getAllFollowMe(username);
         return new ResponseEntity<>(newList, HttpStatus.OK);
     }
@@ -42,37 +56,38 @@ public class FollowRelationResource {
     }
 
     @PostMapping("/followRelation")
-    public ResponseEntity addFollowRelation(@RequestBody CreateFollowRelation followRelation) {
-        this.followRelationService.addFollowRelation(followRelation.getFirstUser(), followRelation.getSecondUser());
+    public ResponseEntity addFollowRelation(HttpServletRequest request, @RequestBody String user) {
+        String jwtToken = request.getHeader("Authorization");
+        if(jwtToken == null || (!JwtUtils.isJwtTokenValid(jwtToken))) {
+            System.err.println("No authorization-header set or invalid jwtToken provided.");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        String username = JwtUtils.getUsernameFromJwtToken(jwtToken);
+        this.followRelationService.addFollowRelation(username, user);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @DeleteMapping("/deleteFollowRelation")
-    public ResponseEntity removeFollowRelation(@RequestBody CreateFollowRelation followRelation) {
-        this.followRelationService.removeFollowRelation(followRelation.getFirstUser(), followRelation.getSecondUser());
+    @DeleteMapping("/deleteFollowRelation/{user}")
+    public ResponseEntity removeFollowRelation(HttpServletRequest request, @PathVariable String user) {
+        String jwtToken = request.getHeader("Authorization");
+        if(jwtToken == null || (!JwtUtils.isJwtTokenValid(jwtToken))) {
+            System.err.println("No authorization-header set or invalid jwtToken provided.");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        String username = JwtUtils.getUsernameFromJwtToken(jwtToken);
+        this.followRelationService.removeFollowRelation(username, user);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-}
 
-class CreateFollowRelation {
-    private String firstUser;
-    private String secondUser;
-
-    public CreateFollowRelation()  {}
-
-    public String getFirstUser() {
-        return firstUser;
-    }
-
-    public void setFirstUser(String firstUser) {
-        this.firstUser = firstUser;
-    }
-
-    public String getSecondUser() {
-        return secondUser;
-    }
-
-    public void setSecondUser(String secondUser) {
-        this.secondUser = secondUser;
+    @PutMapping("/updateUsername")
+    public ResponseEntity updateUsername(HttpServletRequest request, @RequestBody String newUsername) {
+        String jwtToken = request.getHeader("Authorization");
+        if(jwtToken == null || (!JwtUtils.isJwtTokenValid(jwtToken))) {
+            System.err.println("No authorization-header set or invalid jwtToken provided.");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        String username = JwtUtils.getUsernameFromJwtToken(jwtToken);
+        this.followRelationService.updateUsername(username, newUsername);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
